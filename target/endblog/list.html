@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jquery-1.9.1.min%20(1).js"></script>
+    <script>
+        //当前页码
+        var page = 1;
+
+        function detefm(timespan){
+            var date = new Date(timespan)
+            //年
+            var y = date.getFullYear();
+            //月
+            var m = date.getMonth() + 1;
+            //日
+            var d = date.getDay();
+            return y+"-"+m+"-"+d;
+        }
+        //分页方法
+        function mypage(type){
+            if (type == 1){
+                //上一页
+                if (page > 1) {
+                    location.href = "list.html?p=" + (page - 1);
+                }else {
+                    alert("已经首页了！");
+                }
+            }else {
+                //下一页
+                location.href = "list.html?p="+(page+1);
+            }
+        }
+
+        jQuery(function (){
+            //更新全局的页码信息
+            var params = location.search;
+            if (params != ""){
+                //不在首页
+                page = parseInt(params.split("=")[1]);
+            }
+            //访问后端的分页接口
+
+
+            jQuery.getJSON("list",{
+                        "page":page,//当前页码
+                        "psize":2//每页显示两条数据
+            },function (data){
+                if (data!=null&&data.succ==1){
+                    //查询成功
+                    var html = "";
+                    for (var i = 0;i < data.list.length;i++){
+                        //文章对象的数据
+                        var art = data.list[i];
+                        html+="<tr>\n" +
+                            "                <td>\n" +
+                            art.id+"                    \n" +
+                            "                </td>\n" +
+                            "                <td>\n<a href='detail.html?id="+art.id+"'>" +
+                            art.title+"</a>                    \n" +
+                            "                </td>\n" +
+                            "                <td>\n" +
+                            art.username+"                    \n" +
+                            "                </td>\n" +
+                            "                <td>\n" +
+                            detefm(art.createtime)+"                    \n" +
+                            "                </td>\n" +
+                            "                <td>\n" +
+                            art.rcount+"                    \n" +
+                            "                </td>\n" +
+                            "            </tr>";
+                    }
+                    jQuery("#tab").append(html);
+                }else {
+                    alert("查询失败"+data.msg);
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+    <div style="margin-top: 30px; margin-left: 70px;">
+        <h1>文章列表</h1>
+        <table id="tab" style="width: 80%;" border="1">
+            <tr>
+                <td>
+                    编号
+                </td>
+                <td>
+                    标题
+                </td>
+                <td>
+                    作者
+                </td>
+                <td>
+                    发布时间
+                </td>
+                <td>
+                    阅读量
+                </td>
+            </tr>
+        </table>
+        <a href="javascript:mypage(1)"> 上一页 </a>
+        <a href="javascript:mypage(2)"> 下一页 </a>
+    </div>
+</body>
+</html>
